@@ -18,7 +18,14 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { date, time, name, phone, service } = req.body;
+    let body;
+    try {
+        body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    } catch {
+        return res.status(400).json({ error: 'Dados inválidos.' });
+    }
+
+    const { date, time, name, phone, service } = body || {};
 
     if (!date || !time || !name || !phone || !service) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
@@ -46,11 +53,7 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ success: true, message: 'Horário reservado com sucesso!' });
     } catch (error) {
-        console.error('Erro ao reservar slot:', error);
+        console.error('Erro ao reservar slot:', error.message);
         return res.status(500).json({ error: 'Erro ao reservar horário. Tente novamente.' });
     }
 }
-
-export const config = {
-    runtime: 'edge',
-};

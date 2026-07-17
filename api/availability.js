@@ -25,16 +25,17 @@ export default async function handler(req, res) {
     }
 
     try {
-        const keys = await redis.keys(`slot:${date}:*`);
-        const bookedSlots = keys.map(k => k.split(':').pop());
+        const bookedSlots = [];
+        const prefix = `slot:${date}:`;
+
+        for await (const key of redis.scanIterator({ match: `${prefix}*`, count: 100 })) {
+            const time = key.replace(prefix, '');
+            bookedSlots.push(time);
+        }
 
         return res.status(200).json({ booked: bookedSlots });
     } catch (error) {
-        console.error('Erro ao buscar slots:', error);
+        console.error('Erro ao buscar slots:', error.message);
         return res.status(200).json({ booked: [], warning: 'Erro ao verificar disponibilidade' });
     }
 }
-
-export const config = {
-    runtime: 'edge',
-};
