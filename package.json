@@ -1,8 +1,11 @@
 {
-  "name": "royal-cuts-landing",
+  "name": "edigar-barbearia",
   "version": "1.0.0",
-  "description": "Royal Cuts Barbearia - Landing Page",
+  "description": "Edigar Barbearia - Landing Page",
   "private": true,
+  "dependencies": {
+    "@vercel/kv": "^3.0.0"
+  },
   "scripts": {
     "dev": "cd server && npm start",
     "start": "cd server && npm start"
