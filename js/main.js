@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hero background image
     const heroBg = document.getElementById('hero-bg');
     if (heroBg && CONFIG.images && CONFIG.images.hero) {
-        heroBg.style.backgroundImage = `url('${CONFIG.images.hero}')`;
+        heroBg.src = CONFIG.images.hero;
     }
 
     // Services grid (index.html)
