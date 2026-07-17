@@ -1,0 +1,17 @@
+{
+  "name": "royal-cuts-landing",
+  "version": "1.0.0",
+  "description": "Royal Cuts Barbearia - Landing Page",
+  "private": true,
+  "scripts": {
+    "dev": "cd server && npm start",
+    "start": "cd server && npm start"
+  },
+  "keywords": [
+    "barbearia",
+    "landing-page",
+    "vercel"
+  ],
+  "author": "",
+  "license": "MIT"
+}

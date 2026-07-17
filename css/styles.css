@@ -1,0 +1,219 @@
+/* ============================================
+   ROYAL CUTS - Custom Styles
+   ============================================ */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+    background-color: rgba(201, 149, 45, 0.3);
+    color: #ffffff;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #c9952d;
+}
+
+/* Hero pattern */
+.hero-pattern {
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(201, 149, 45, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(201, 149, 45, 0.05) 0%, transparent 50%);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.animation-delay-200 {
+    animation-delay: 0.2s;
+    opacity: 0;
+}
+
+.animation-delay-400 {
+    animation-delay: 0.4s;
+    opacity: 0;
+}
+
+/* Header background on scroll */
+#header.scrolled {
+    background: rgba(10, 10, 10, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(34, 34, 34, 0.5);
+}
+
+/* Mobile menu animation */
+#mobile-menu {
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Card hover glow effect */
+.group:hover {
+    box-shadow: 0 0 30px rgba(201, 149, 45, 0.1);
+}
+
+/* Gold gradient text */
+.text-gold-gradient {
+    background: linear-gradient(135deg, #d4a853, #b8860b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Button shine effect */
+.btn-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-shine::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) rotate(45deg);
+    }
+}
+
+/* Focus styles for accessibility */
+a:focus-visible,
+button:focus-visible {
+    outline: 2px solid #c9952d;
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/* ============================================
+   Responsive Improvements
+   ============================================ */
+
+/* Small phones (320px - 360px) */
+@media (max-width: 360px) {
+    .hero-pattern {
+        opacity: 0.05;
+    }
+}
+
+/* Tablets (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .group:hover {
+        box-shadow: 0 0 20px rgba(201, 149, 45, 0.08);
+    }
+}
+
+/* Touch devices - remove hover effects that don't work well */
+@media (hover: none) {
+    .group:hover {
+        transform: none;
+    }
+
+    .group:hover {
+        box-shadow: none;
+    }
+}
+
+/* Improve form inputs on mobile */
+input[type="date"],
+input[type="tel"],
+input[type="text"],
+textarea,
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Prevent zoom on input focus on iOS */
+@media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="tel"],
+    input[type="email"],
+    textarea,
+    select {
+        font-size: 16px;
+    }
+}
