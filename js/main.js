@@ -1,5 +1,5 @@
 // ============================================
-// ROYAL CUTS - Main JavaScript
+// EDIGAR BARBEARIA - Main JavaScript
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -7,6 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================
     // Populate dynamic content from CONFIG
     // ========================================
+
+    // Logo injection
+    document.querySelectorAll('[id^="header-logo"], [id^="footer-logo"]').forEach(img => {
+        if (CONFIG.images && CONFIG.images.logo) {
+            img.src = CONFIG.images.logo;
+            img.classList.remove('hidden');
+            const brandText = img.parentElement.querySelector('.header-brand, .footer-brand');
+            if (brandText) brandText.textContent = CONFIG.name;
+        }
+    });
+
+    // Hero background image
+    const heroBg = document.getElementById('hero-bg');
+    if (heroBg && CONFIG.images && CONFIG.images.hero) {
+        heroBg.style.backgroundImage = `url('${CONFIG.images.hero}')`;
+    }
 
     // Services grid (index.html)
     const servicesGrid = document.getElementById('services-grid');
@@ -46,12 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const instagramHandle = document.getElementById('contact-instagram-handle');
     if (instagramHandle) instagramHandle.textContent = `@${CONFIG.instagram}`;
-
-    const mapsLink = document.getElementById('contact-maps');
-    if (mapsLink) mapsLink.href = CONFIG.addressUrl;
-
-    const addressDisplay = document.getElementById('contact-address');
-    if (addressDisplay) addressDisplay.textContent = CONFIG.address;
 
     // Hours
     const hoursWeekdays = document.getElementById('hours-weekdays');
