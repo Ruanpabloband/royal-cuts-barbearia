@@ -1,4 +1,6 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,13 +28,13 @@ export default async function handler(req, res) {
     const slotKey = `slot:${date}:${time}`;
 
     try {
-        const existing = await kv.get(slotKey);
+        const existing = await redis.get(slotKey);
 
         if (existing) {
             return res.status(409).json({ error: 'Horário já ocupado. Escolha outro horário.' });
         }
 
-        await kv.set(slotKey, {
+        await redis.set(slotKey, {
             name,
             phone,
             service,

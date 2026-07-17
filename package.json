@@ -4,7 +4,7 @@
   "description": "Edigar Barbearia - Landing Page",
   "private": true,
   "dependencies": {
-    "@vercel/kv": "^3.0.0"
+    "@upstash/redis": "^1.34.0"
   },
   "scripts": {
     "dev": "cd server && npm start",

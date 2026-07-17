@@ -1,4 +1,6 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,13 +22,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        const pattern = `slot:${date}:*`;
-        const bookedSlots = [];
-
-        for await (const key of kv.scanIterator({ match: pattern })) {
-            const time = key.split(':').pop();
-            bookedSlots.push(time);
-        }
+        const keys = await redis.keys(`slot:${date}:*`);
+        const bookedSlots = keys.map(k => k.split(':').pop());
 
         return res.status(200).json({ booked: bookedSlots });
     } catch (error) {
