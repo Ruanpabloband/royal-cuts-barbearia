@@ -27,16 +27,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Services grid (index.html)
     const servicesGrid = document.getElementById('services-grid');
     if (servicesGrid && CONFIG.services) {
-        servicesGrid.innerHTML = CONFIG.services.map(service => `
-            <div class="group bg-dark-800 border border-dark-600 rounded-sm p-6 md:p-8 hover:border-gold-500/50 transition-all duration-300 hover:-translate-y-1">
-                <h3 class="font-heading text-lg md:text-xl font-semibold mb-3">${service.name}</h3>
-                <p class="text-gray-400 text-sm mb-5 md:mb-6 leading-relaxed">${service.description}</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-gold-500 font-heading text-xl md:text-2xl font-semibold">R$ ${service.price}</span>
-                    <span class="text-gray-500 text-sm">${service.duration}</span>
-                </div>
-            </div>
-        `).join('');
+        const fragment = document.createDocumentFragment();
+        CONFIG.services.forEach(service => {
+            const card = document.createElement('div');
+            card.className = 'group bg-dark-800 border border-dark-600 rounded-sm p-6 md:p-8 hover:border-gold-500/50 transition-all duration-300 hover:-translate-y-1';
+
+            const h3 = document.createElement('h3');
+            h3.className = 'font-heading text-lg md:text-xl font-semibold mb-3';
+            h3.textContent = service.name;
+
+            const p = document.createElement('p');
+            p.className = 'text-gray-400 text-sm mb-5 md:mb-6 leading-relaxed';
+            p.textContent = service.description;
+
+            const info = document.createElement('div');
+            info.className = 'flex items-center justify-between';
+
+            const price = document.createElement('span');
+            price.className = 'text-gold-500 font-heading text-xl md:text-2xl font-semibold';
+            price.textContent = `R$ ${service.price}`;
+
+            const duration = document.createElement('span');
+            duration.className = 'text-gray-500 text-sm';
+            duration.textContent = service.duration;
+
+            info.appendChild(price);
+            info.appendChild(duration);
+            card.appendChild(h3);
+            card.appendChild(p);
+            card.appendChild(info);
+            fragment.appendChild(card);
+        });
+        servicesGrid.appendChild(fragment);
     }
 
     // Service select (agendamento.html)

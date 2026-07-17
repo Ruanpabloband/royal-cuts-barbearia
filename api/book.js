@@ -38,18 +38,16 @@ export default async function handler(req, res) {
     const slotKey = `slot:${date}:${time}`;
 
     try {
-        const existing = await redis.get(slotKey);
-
-        if (existing) {
-            return res.status(409).json({ error: 'Horário já ocupado. Escolha outro horário.' });
-        }
-
-        await redis.set(slotKey, {
+        const result = await redis.set(slotKey, {
             name,
             phone,
             service,
             bookedAt: Date.now()
-        }, { ex: 172800 });
+        }, { nx: true, ex: 172800 });
+
+        if (!result) {
+            return res.status(409).json({ error: 'Horário já ocupado. Escolha outro horário.' });
+        }
 
         return res.status(200).json({ success: true, message: 'Horário reservado com sucesso!' });
     } catch (error) {
