@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Edigar Barbearia</title>
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { 400: '#d4a853', 500: '#c9952d', 600: '#b8860b' },
+                        dark: { 900: '#0a0a0a', 800: '#111111', 700: '#1a1a1a', 600: '#222222' }
+                    },
+                    fontFamily: {
+                        heading: ['"Playfair Display"', 'serif'],
+                        body: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-dark-900 text-white font-body antialiased min-h-screen">
+
+    <!-- Login -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-sm">
+            <div class="text-center mb-8">
+                <img src="assets/images/logo.png" alt="Edigar Barbearia" class="h-12 w-auto mx-auto mb-4">
+                <h1 class="font-heading text-2xl font-bold">Painel Admin</h1>
+                <p class="text-gray-400 text-sm mt-2">Edigar Barbearia</p>
+            </div>
+            <form id="login-form" class="bg-dark-800 border border-dark-600 rounded-sm p-6 space-y-4">
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Senha</label>
+                    <input type="password" id="password" required placeholder="Digite a senha"
+                           class="w-full bg-dark-700 border border-dark-600 rounded-sm px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-gold-500 transition-colors">
+                </div>
+                <div id="login-error" class="hidden bg-red-500/10 border border-red-500/50 rounded-sm p-3 text-red-400 text-sm text-center" role="alert"></div>
+                <button type="submit" id="login-btn"
+                        class="w-full bg-gold-500 text-dark-900 px-6 py-3 rounded-sm text-sm font-semibold uppercase tracking-wider hover:bg-gold-400 transition-colors">
+                    Entrar
+                </button>
+            </form>
+            <p class="text-center text-gray-600 text-xs mt-6">&copy; 2025 Edigar Barbearia</p>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="hidden">
+        <!-- Header -->
+        <header class="bg-dark-800 border-b border-dark-600">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="assets/images/logo.png" alt="" class="h-8 w-auto">
+                    <h1 class="font-heading text-lg font-semibold">Painel Admin</h1>
+                </div>
+                <button id="logout-btn" class="text-gray-400 hover:text-white text-sm transition-colors">Sair</button>
+            </div>
+        </header>
+
+        <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+            <!-- Resumo -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <div class="bg-dark-800 border border-dark-600 rounded-sm p-6">
+                    <p class="text-gray-400 text-sm mb-1">Total de Agendamentos</p>
+                    <p id="stat-total" class="font-heading text-3xl font-bold text-gold-500">-</p>
+                </div>
+                <div class="bg-dark-800 border border-dark-600 rounded-sm p-6">
+                    <p class="text-gray-400 text-sm mb-1">Receita Total</p>
+                    <p id="stat-revenue" class="font-heading text-3xl font-bold text-gold-500">-</p>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="text-center py-12 text-gray-400">
+                <svg class="w-8 h-8 animate-spin mx-auto mb-3 text-gold-500" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                Carregando dados...
+            </div>
+
+            <!-- Tabela -->
+            <div id="table-wrapper" class="hidden">
+                <div class="bg-dark-800 border border-dark-600 rounded-sm overflow-hidden">
+                    <div class="px-6 py-4 border-b border-dark-600">
+                        <h2 class="font-heading text-lg font-semibold">Agendamentos</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-dark-600 text-gray-400 text-left">
+                                    <th class="px-6 py-3 font-medium">Data</th>
+                                    <th class="px-6 py-3 font-medium">Horário</th>
+                                    <th class="px-6 py-3 font-medium">Serviço</th>
+                                    <th class="px-6 py-3 font-medium">Cliente</th>
+                                    <th class="px-6 py-3 font-medium">Telefone</th>
+                                    <th class="px-6 py-3 font-medium text-right">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookings-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="empty-state" class="hidden px-6 py-12 text-center text-gray-500">
+                        Nenhum agendamento encontrado.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Erro -->
+            <div id="data-error" class="hidden bg-red-500/10 border border-red-500/50 rounded-sm p-4 text-red-400 text-sm text-center mt-4"></div>
+        </main>
+    </div>
+
+    <script>
+    (function() {
+        const SERVICES = { 'Barba': 15, 'Combo Corte + Barba': 25, 'Degradê': 20, 'Corte Social': 20 };
+        const MAX_ATTEMPTS = 3;
+        let attempts = parseInt(sessionStorage.getItem('admin_attempts') || '0');
+        let lockUntil = parseInt(sessionStorage.getItem('admin_lock') || '0');
+
+        const loginScreen = document.getElementById('login-screen');
+        const dashboard = document.getElementById('dashboard');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loading = document.getElementById('loading');
+        const tableWrapper = document.getElementById('table-wrapper');
+        const bookingsBody = document.getElementById('bookings-body');
+        const emptyState = document.getElementById('empty-state');
+        const statTotal = document.getElementById('stat-total');
+        const statRevenue = document.getElementById('stat-revenue');
+        const dataError = document.getElementById('data-error');
+
+        const savedPassword = sessionStorage.getItem('admin_password');
+        if (savedPassword) {
+            loadDashboard(savedPassword);
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value.trim();
+            if (!password) return;
+
+            if (Date.now() < lockUntil) {
+                const secs = Math.ceil((lockUntil - Date.now()) / 1000);
+                loginError.textContent = `Bloqueado. Tente em ${secs}s.`;
+                loginError.classList.remove('hidden');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+            loginError.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    attempts++;
+                    sessionStorage.setItem('admin_attempts', attempts);
+
+                    if (attempts >= MAX_ATTEMPTS) {
+                        lockUntil = Date.now() + 60000;
+                        sessionStorage.setItem('admin_lock', lockUntil);
+                        loginError.textContent = 'Muitas tentativas. Bloqueado por 60s.';
+                    } else {
+                        loginError.textContent = data.error || 'Senha incorreta.';
+                    }
+                    loginError.classList.remove('hidden');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Entrar';
+                    return;
+                }
+
+                attempts = 0;
+                sessionStorage.removeItem('admin_attempts');
+                sessionStorage.removeItem('admin_lock');
+                sessionStorage.setItem('admin_password', password);
+
+                renderDashboard(data);
+            } catch {
+                loginError.textContent = 'Erro de conexão.';
+                loginError.classList.remove('hidden');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Entrar';
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('admin_password');
+            dashboard.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            document.getElementById('password').value = '';
+        });
+
+        async function loadDashboard(password) {
+            loginScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            loading.classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    sessionStorage.removeItem('admin_password');
+                    loginScreen.classList.remove('hidden');
+                    dashboard.classList.add('hidden');
+                    return;
+                }
+
+                renderDashboard(data);
+            } catch {
+                loading.classList.add('hidden');
+                dataError.textContent = 'Erro ao carregar dados.';
+                dataError.classList.remove('hidden');
+            }
+        }
+
+        function renderDashboard(data) {
+            loading.classList.add('hidden');
+            statTotal.textContent = data.totalBookings;
+            statRevenue.textContent = `R$ ${data.totalRevenue.toFixed(2)}`;
+
+            if (data.bookings.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            bookingsBody.innerHTML = data.bookings.map(b => {
+                const dateObj = new Date(b.date + 'T12:00:00');
+                const dateFormatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                return `<tr class="border-b border-dark-600 hover:bg-dark-700 transition-colors">
+                    <td class="px-6 py-3 whitespace-nowrap">${dateFormatted}</td>
+                    <td class="px-6 py-3 whitespace-nowrap">${b.time}</td>
+                    <td class="px-6 py-3">${b.service}</td>
+                    <td class="px-6 py-3">${b.name}</td>
+                    <td class="px-6 py-3 whitespace-nowrap">${b.phone}</td>
+                    <td class="px-6 py-3 text-right font-medium text-gold-500">R$ ${b.price.toFixed(2)}</td>
+                </tr>`;
+            }).join('');
+
+            tableWrapper.classList.remove('hidden');
+        }
+    })();
+    </script>
+</body>
+</html>
