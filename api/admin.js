@@ -34,8 +34,12 @@ export default async function handler(req, res) {
 
     const { password } = body || {};
 
-    if (!password || password !== process.env.ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Senha incorreta.' });
+    if (!password || !process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ error: 'Senha incorreta.', debug: process.env.ADMIN_PASSWORD ? 'var_ok' : 'var_missing' });
+    }
+
+    if (password !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ error: 'Senha incorreta.', debug: 'wrong_password' });
     }
 
     try {
