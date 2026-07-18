@@ -6,7 +6,7 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://edigar-barbearia.vercel.app/agendamento.html</loc>
+    <loc>https://edigar-barbearia.vercel.app/agendamento</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

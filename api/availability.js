@@ -5,10 +5,11 @@ const redis = new Redis({
     token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+const ALLOWED_ORIGINS = ['https://edigar-barbearia.vercel.app'];
+
 export default async function handler(req, res) {
     const origin = req.headers.origin || '';
-    const allowed = ['https://edigar-barbearia.vercel.app'];
-    if (allowed.includes(origin)) {
+    if (ALLOWED_ORIGINS.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -36,6 +37,6 @@ export default async function handler(req, res) {
         return res.status(200).json({ booked: bookedSlots });
     } catch (error) {
         console.error('Erro ao buscar slots:', error.message);
-        return res.status(200).json({ booked: [], warning: 'Erro ao verificar disponibilidade' });
+        return res.status(503).json({ error: 'Serviço temporariamente indisponível. Tente novamente.' });
     }
 }

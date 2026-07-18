@@ -12,8 +12,26 @@ const SERVICES = {
     'Corte Social': 20
 };
 
+const ALLOWED_ORIGINS = ['https://edigar-barbearia.vercel.app'];
+
+function setCors(res, origin) {
+    if (ALLOWED_ORIGINS.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+}
+
+async function checkRateLimit(ip) {
+    const key = `ratelimit:${ip}`;
+    const count = await redis.incr(key).catch(() => 0);
+    if (count === 1) {
+        await redis.expire(key, 60).catch(() => {});
+    }
+    return count <= 5;
+}
+
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const origin = req.headers.origin || '';
+    setCors(res, origin);
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -23,6 +41,12 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+    const withinLimit = await checkRateLimit(ip);
+    if (!withinLimit) {
+        return res.status(429).json({ error: 'Muitas tentativas. Aguarde 60 segundos.' });
     }
 
     let body;
@@ -45,6 +69,11 @@ export default async function handler(req, res) {
         for (const date of dates) {
             const keys = await redis.keys(`slot:${date}:*`);
             const prefix = `slot:${date}:`;
+
+            if (keys.length === 0) {
+                await redis.srem('booked_dates', date).catch(() => {});
+                continue;
+            }
 
             for (const key of keys) {
                 const time = key.replace(prefix, '');

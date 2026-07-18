@@ -5,10 +5,30 @@ const redis = new Redis({
     token: process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+const ALLOWED_ORIGINS = ['https://edigar-barbearia.vercel.app'];
+
+const HOURS = {
+    0: null,
+    1: { start: 9, end: 20 },
+    2: { start: 9, end: 20 },
+    3: { start: 9, end: 20 },
+    4: { start: 9, end: 20 },
+    5: { start: 9, end: 20 },
+    6: { start: 9, end: 18 }
+};
+
+function isSlotWithinHours(dateStr, timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    const date = new Date(dateStr + 'T12:00:00');
+    const day = date.getDay();
+    const hours = HOURS[day];
+    if (!hours) return false;
+    return h >= hours.start && h < hours.end;
+}
+
 export default async function handler(req, res) {
     const origin = req.headers.origin || '';
-    const allowed = ['https://edigar-barbearia.vercel.app'];
-    if (allowed.includes(origin)) {
+    if (ALLOWED_ORIGINS.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -39,13 +59,22 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Formato de data ou horário inválido.' });
     }
 
+    if (!isSlotWithinHours(date, time)) {
+        return res.status(400).json({ error: 'Horário fora do expediente.' });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    if (date < today) {
+        return res.status(400).json({ error: 'Não é possível agendar em datas passadas.' });
+    }
+
     const slotKey = `slot:${date}:${time}`;
 
     try {
         const result = await redis.set(slotKey, {
-            name,
-            phone,
-            service,
+            name: name.substring(0, 100),
+            phone: phone.substring(0, 20),
+            service: service.substring(0, 50),
             bookedAt: Date.now()
         }, { nx: true, ex: 172800 });
 

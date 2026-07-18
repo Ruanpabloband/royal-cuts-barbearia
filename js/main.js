@@ -335,6 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const res = await fetch(`/api/availability?date=${dateInput.value}`);
+                if (res.status === 503) {
+                    timeSelect.innerHTML = '<option value="" disabled selected>Serviço indisponível</option>';
+                    return;
+                }
                 const { booked } = await res.json();
                 const available = allSlots.filter(slot => !booked.includes(slot));
                 populateTimeSlots(available);

@@ -180,7 +180,11 @@
                     attempts++;
                     sessionStorage.setItem('admin_attempts', attempts);
 
-                    if (attempts >= MAX_ATTEMPTS) {
+                    if (res.status === 429) {
+                        lockUntil = Date.now() + 60000;
+                        sessionStorage.setItem('admin_lock', lockUntil);
+                        loginError.textContent = data.error || 'Muitas tentativas. Bloqueado por 60s.';
+                    } else if (attempts >= MAX_ATTEMPTS) {
                         lockUntil = Date.now() + 60000;
                         sessionStorage.setItem('admin_lock', lockUntil);
                         loginError.textContent = 'Muitas tentativas. Bloqueado por 60s.';
@@ -253,18 +257,47 @@
                 return;
             }
 
-            bookingsBody.innerHTML = data.bookings.map(b => {
+            bookingsBody.innerHTML = '';
+
+            data.bookings.forEach(b => {
                 const dateObj = new Date(b.date + 'T12:00:00');
                 const dateFormatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                return `<tr class="border-b border-dark-600 hover:bg-dark-700 transition-colors">
-                    <td class="px-6 py-3 whitespace-nowrap">${dateFormatted}</td>
-                    <td class="px-6 py-3 whitespace-nowrap">${b.time}</td>
-                    <td class="px-6 py-3">${b.service}</td>
-                    <td class="px-6 py-3">${b.name}</td>
-                    <td class="px-6 py-3 whitespace-nowrap">${b.phone}</td>
-                    <td class="px-6 py-3 text-right font-medium text-gold-500">R$ ${b.price.toFixed(2)}</td>
-                </tr>`;
-            }).join('');
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-dark-600 hover:bg-dark-700 transition-colors';
+
+                const tdDate = document.createElement('td');
+                tdDate.className = 'px-6 py-3 whitespace-nowrap';
+                tdDate.textContent = dateFormatted;
+
+                const tdTime = document.createElement('td');
+                tdTime.className = 'px-6 py-3 whitespace-nowrap';
+                tdTime.textContent = b.time;
+
+                const tdService = document.createElement('td');
+                tdService.className = 'px-6 py-3';
+                tdService.textContent = b.service;
+
+                const tdName = document.createElement('td');
+                tdName.className = 'px-6 py-3';
+                tdName.textContent = b.name;
+
+                const tdPhone = document.createElement('td');
+                tdPhone.className = 'px-6 py-3 whitespace-nowrap';
+                tdPhone.textContent = b.phone;
+
+                const tdPrice = document.createElement('td');
+                tdPrice.className = 'px-6 py-3 text-right font-medium text-gold-500';
+                tdPrice.textContent = `R$ ${b.price.toFixed(2)}`;
+
+                tr.appendChild(tdDate);
+                tr.appendChild(tdTime);
+                tr.appendChild(tdService);
+                tr.appendChild(tdName);
+                tr.appendChild(tdPhone);
+                tr.appendChild(tdPrice);
+                bookingsBody.appendChild(tr);
+            });
 
             tableWrapper.classList.remove('hidden');
         }
