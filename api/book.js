@@ -53,6 +53,8 @@ export default async function handler(req, res) {
             return res.status(409).json({ error: 'Horário já ocupado. Escolha outro horário.' });
         }
 
+        await redis.sadd('booked_dates', date);
+
         return res.status(200).json({ success: true, message: 'Horário reservado com sucesso!' });
     } catch (error) {
         console.error('Erro ao reservar slot:', error.message);

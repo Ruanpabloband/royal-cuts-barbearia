@@ -39,30 +39,37 @@ export default async function handler(req, res) {
     }
 
     try {
-        const keys = await redis.keys('slot:*');
+        const dates = await redis.smembers('booked_dates');
         const bookings = [];
 
-        if (keys.length > 0) {
-            const values = await Promise.all(keys.map(k => redis.get(k).catch(() => null)));
+        if (dates.length > 0) {
+            const slotArrays = await Promise.all(
+                dates.map(d => redis.keys(`slot:${d}:*`).catch(() => []))
+            );
 
-            for (let i = 0; i < keys.length; i++) {
-                const parts = keys[i].split(':');
-                if (parts.length !== 3) continue;
+            for (let d = 0; d < dates.length; d++) {
+                const date = dates[d];
+                const keys = slotArrays[d];
 
-                const [, date, time] = parts;
-                const data = values[i];
+                for (let i = 0; i < keys.length; i++) {
+                    const parts = keys[i].split(':');
+                    if (parts.length !== 3) continue;
 
-                if (data) {
-                    const price = SERVICES[data.service] || 0;
-                    bookings.push({
-                        date,
-                        time,
-                        service: data.service,
-                        name: data.name,
-                        phone: data.phone,
-                        price,
-                        bookedAt: data.bookedAt
-                    });
+                    const time = parts[2];
+                    const data = await redis.get(keys[i]).catch(() => null);
+
+                    if (data) {
+                        const price = SERVICES[data.service] || 0;
+                        bookings.push({
+                            date,
+                            time,
+                            service: data.service,
+                            name: data.name,
+                            phone: data.phone,
+                            price,
+                            bookedAt: data.bookedAt
+                        });
+                    }
                 }
             }
         }
