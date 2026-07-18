@@ -34,12 +34,14 @@ export default async function handler(req, res) {
 
     const { password } = body || {};
 
+    const envKeys = Object.keys(process.env).filter(k => k.includes('ADMIN') || k.includes('KV') || k.includes('UPSTASH'));
+
     if (!password || !process.env.ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Senha incorreta.', debug: process.env.ADMIN_PASSWORD ? 'var_ok' : 'var_missing' });
+        return res.status(401).json({ error: 'Senha incorreta.', envKeys });
     }
 
     if (password !== process.env.ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Senha incorreta.', debug: 'wrong_password' });
+        return res.status(401).json({ error: 'Senha incorreta.', envKeys });
     }
 
     try {
