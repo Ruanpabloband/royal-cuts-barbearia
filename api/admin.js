@@ -34,25 +34,26 @@ export default async function handler(req, res) {
 
     const { password } = body || {};
 
-    const envKeys = Object.keys(process.env).filter(k => k.includes('ADMIN') || k.includes('KV') || k.includes('UPSTASH'));
-
-    if (!password || !process.env.ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Senha incorreta.', envKeys });
-    }
-
-    if (password !== process.env.ADMIN_PASSWORD) {
-        return res.status(401).json({ error: 'Senha incorreta.', envKeys });
+    if (!password || password !== process.env.ADMIN_PASSWORD) {
+        return res.status(401).json({ error: 'Senha incorreta.' });
     }
 
     try {
         const bookings = [];
+        const keys = [];
 
         for await (const key of redis.scanIterator({ match: 'slot:*', count: 100 })) {
-            const parts = key.split(':');
+            keys.push(key);
+        }
+
+        const values = await Promise.all(keys.map(k => redis.get(k).catch(() => null)));
+
+        for (let i = 0; i < keys.length; i++) {
+            const parts = keys[i].split(':');
             if (parts.length !== 3) continue;
 
             const [, date, time] = parts;
-            const data = await redis.get(key);
+            const data = values[i];
 
             if (data) {
                 const price = SERVICES[data.service] || 0;
