@@ -79,14 +79,12 @@ export default async function handler(req, res) {
             return b.time.localeCompare(a.time);
         });
 
-        const totalRevenue = bookings.reduce((sum, b) => sum + b.price, 0);
-        const totalBookings = bookings.length;
-
         return res.status(200).json({
             success: true,
             bookings,
-            totalBookings,
-            totalRevenue
+            totalBookings: bookings.length,
+            totalRevenue: bookings.reduce((sum, b) => sum + b.price, 0),
+            debugDates: dates
         });
     } catch (error) {
         console.error('Erro ao buscar dados admin:', error.message);
