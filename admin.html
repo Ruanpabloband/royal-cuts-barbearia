@@ -86,7 +86,7 @@
 
         <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
             <!-- Stats -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
                 <div class="bg-dark-800 border border-dark-600 rounded-sm p-4">
                     <p class="text-gray-400 text-xs mb-1">Total do Dia</p>
                     <p id="stat-total" class="font-heading text-2xl font-bold text-gold-500">-</p>
@@ -102,6 +102,28 @@
                 <div class="bg-dark-800 border border-dark-600 rounded-sm p-4">
                     <p class="text-gray-400 text-xs mb-1">Confirmados</p>
                     <p id="stat-confirmed" class="font-heading text-2xl font-bold text-green-400">-</p>
+                </div>
+            </div>
+
+            <!-- Navegador de Data -->
+            <div class="bg-dark-800 border border-dark-600 rounded-sm p-4 mb-6 flex flex-col sm:flex-row items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button id="btn-today" class="bg-gold-500 text-dark-900 px-4 py-2 rounded-sm text-sm font-semibold hover:bg-gold-400 transition-colors">Hoje</button>
+                    <button id="btn-tomorrow" class="bg-dark-700 text-gray-300 px-4 py-2 rounded-sm text-sm font-medium hover:bg-dark-600 transition-colors">Amanhã</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btn-prev" class="bg-dark-700 text-gray-300 p-2 rounded-sm hover:bg-dark-600 transition-colors" aria-label="Dia anterior">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <p id="selected-date" class="text-white font-heading text-lg font-semibold min-w-[200px] text-center"></p>
+                    <button id="btn-next" class="bg-dark-700 text-gray-300 p-2 rounded-sm hover:bg-dark-600 transition-colors" aria-label="Próximo dia">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="date-picker" class="text-gray-400 text-sm">Data:</label>
+                    <input type="date" id="date-picker"
+                           class="bg-dark-700 border border-dark-600 rounded-sm px-3 py-2 text-sm text-white focus:outline-none focus:border-gold-500">
                 </div>
             </div>
 
@@ -174,6 +196,7 @@
         let currentSearch = '';
         let allBookings = [];
         let refreshTimer = null;
+        let selectedDate = new Date();
 
         const loginScreen = document.getElementById('login-screen');
         const dashboard = document.getElementById('dashboard');
@@ -195,6 +218,72 @@
         const currentTime = document.getElementById('current-time');
         const lastUpdate = document.getElementById('last-update');
         const filterBtns = document.querySelectorAll('.filter-btn');
+        const btnToday = document.getElementById('btn-today');
+        const btnTomorrow = document.getElementById('btn-tomorrow');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const datePicker = document.getElementById('date-picker');
+        const selectedDateEl = document.getElementById('selected-date');
+
+        function formatSelectedDate() {
+            return selectedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        function getDateStr(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function updateSelectedDateUI() {
+            selectedDateEl.textContent = formatSelectedDate();
+            datePicker.value = getDateStr(selectedDate);
+        }
+
+        function isToday(date) {
+            const today = new Date();
+            return date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
+        }
+
+        function isTomorrow(date) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            return date.getFullYear() === tomorrow.getFullYear() && date.getMonth() === tomorrow.getMonth() && date.getDate() === tomorrow.getDate();
+        }
+
+        function changeDate(newDate) {
+            selectedDate = newDate;
+            updateSelectedDateUI();
+            btnToday.classList.toggle('bg-gold-500', isToday(selectedDate));
+            btnToday.classList.toggle('text-dark-900', isToday(selectedDate));
+            btnToday.classList.toggle('bg-dark-700', !isToday(selectedDate));
+            btnToday.classList.toggle('text-gray-300', !isToday(selectedDate));
+            btnTomorrow.classList.toggle('bg-gold-500', isTomorrow(selectedDate));
+            btnTomorrow.classList.toggle('text-dark-900', isTomorrow(selectedDate));
+            btnTomorrow.classList.toggle('bg-dark-700', !isTomorrow(selectedDate));
+            btnTomorrow.classList.toggle('text-gray-300', !isTomorrow(selectedDate));
+            const pw = sessionStorage.getItem('admin_password');
+            if (pw) loadDashboard(pw, true);
+        }
+
+        btnToday.addEventListener('click', () => changeDate(new Date()));
+        btnTomorrow.addEventListener('click', () => {
+            const t = new Date();
+            t.setDate(t.getDate() + 1);
+            changeDate(t);
+        });
+        btnPrev.addEventListener('click', () => {
+            const d = new Date(selectedDate);
+            d.setDate(d.getDate() - 1);
+            changeDate(d);
+        });
+        btnNext.addEventListener('click', () => {
+            const d = new Date(selectedDate);
+            d.setDate(d.getDate() + 1);
+            changeDate(d);
+        });
+        datePicker.addEventListener('change', () => {
+            const parts = datePicker.value.split('-');
+            changeDate(new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])));
+        });
 
         function updateClock() {
             const now = new Date();
@@ -224,6 +313,7 @@
 
         const savedPassword = sessionStorage.getItem('admin_password');
         if (savedPassword) {
+            updateSelectedDateUI();
             loadDashboard(savedPassword);
         }
 
@@ -247,7 +337,7 @@
                 const res = await fetch('/api/admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ password, date: getDateStr(selectedDate) })
                 });
 
                 const data = await res.json();
@@ -280,6 +370,7 @@
 
                 loginScreen.classList.add('hidden');
                 dashboard.classList.remove('hidden');
+                updateSelectedDateUI();
                 renderDashboard(data);
                 startAutoRefresh();
             } catch {
@@ -321,7 +412,7 @@
                 const res = await fetch('/api/admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password })
+                    body: JSON.stringify({ password, date: getDateStr(selectedDate) })
                 });
 
                 const data = await res.json();
@@ -349,6 +440,13 @@
             loading.classList.add('hidden');
             dataError.classList.add('hidden');
             allBookings = data.bookings || [];
+
+            const tableTitle = document.querySelector('#table-wrapper .font-heading');
+            if (tableTitle) {
+                const d = new Date(getDateStr(selectedDate) + 'T12:00:00');
+                const dateLabel = isToday(selectedDate) ? 'Hoje' : d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+                tableTitle.textContent = `Agendamentos — ${dateLabel}`;
+            }
 
             const pending = allBookings.filter(b => b.status === 'pending').length;
             const confirmed = allBookings.filter(b => b.status === 'confirmed').length;
