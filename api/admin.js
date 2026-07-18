@@ -44,8 +44,13 @@ export default async function handler(req, res) {
 
         if (dates.length > 0) {
             const slotArrays = await Promise.all(
-                dates.map(d => redis.keys(`slot:${d}:*`).catch(() => []))
+                dates.map(d => redis.keys(`slot:${d}:*`).catch(e => { console.error('keys error:', e.message); return []; }))
             );
+
+            const debugKeys = {};
+            for (let d = 0; d < dates.length; d++) {
+                debugKeys[dates[d]] = slotArrays[d];
+            }
 
             for (let d = 0; d < dates.length; d++) {
                 const date = dates[d];
@@ -84,7 +89,8 @@ export default async function handler(req, res) {
             bookings,
             totalBookings: bookings.length,
             totalRevenue: bookings.reduce((sum, b) => sum + b.price, 0),
-            debugDates: dates
+            debugDates: dates,
+            debugKeys
         });
     } catch (error) {
         console.error('Erro ao buscar dados admin:', error.message);
