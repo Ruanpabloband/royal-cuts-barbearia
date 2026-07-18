@@ -7,7 +7,7 @@ const redis = new Redis({
 
 export default async function handler(req, res) {
     const origin = req.headers.origin || '';
-    const allowed = ['https://edigar-barbearia.vercel.app', 'https://landingpage-eight-navy-89.vercel.app'];
+    const allowed = ['https://edigar-barbearia.vercel.app'];
     if (allowed.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }

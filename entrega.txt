@@ -2,7 +2,7 @@
   EDIGAR BARBEARIA - Manual de Entrega
 =========================================
 
-SITE: edigar-barbearia.vercel.app (ou landingpage-eight-navy-89.vercel.app)
+SITE: edigar-barbearia.vercel.app
 DESENVOLVIDO POR: [Seu nome]
 
 -----------------------------------------
@@ -60,7 +60,7 @@ O horario fica reservado por 48 horas no sistema.
 
 Para alterar precos, horarios, telefone ou Instagram:
 
-1. Entre no GitHub: github.com/Ruanpabloband/royal-cuts-barbearia
+1. Entre no GitHub: github.com/Ruanpabloband/edigar-barbearia
 2. Abra o arquivo: js/config.js
 3. Edite o que precisa (preco, horario, telefone, etc.)
 4. Clique em "Commit changes"
