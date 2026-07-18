@@ -433,10 +433,26 @@
                     tdActions.appendChild(confirmBtn);
                     tdActions.appendChild(cancelBtn);
                 } else if (b.status === 'confirmed') {
+                    const phoneClean = (b.phone || '').replace(/\D/g, '');
+                    const dateObj = new Date(b.date + 'T12:00:00');
+                    const dateFormatted = dateObj.toLocaleDateString('pt-BR', {
+                        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                    });
+                    const msg = `Olá, ${b.name}! Seu agendamento na Edigar Barbearia foi confirmado!\n\nServiço: ${b.service}\nData: ${dateFormatted}\nHorário: ${b.time}\n\nAguardamos você!`;
+                    const waUrl = `https://wa.me/55${phoneClean}?text=${encodeURIComponent(msg)}`;
+
+                    const waBtn = document.createElement('a');
+                    waBtn.href = waUrl;
+                    waBtn.target = '_blank';
+                    waBtn.className = 'btn-confirm px-3 py-1 rounded-sm text-xs font-medium mr-1 inline-block no-underline';
+                    waBtn.textContent = 'WhatsApp';
+
                     const cancelBtn = document.createElement('button');
                     cancelBtn.className = 'btn-cancel px-3 py-1 rounded-sm text-xs font-medium';
                     cancelBtn.textContent = 'Cancelar';
                     cancelBtn.addEventListener('click', () => cancelBooking(b.date, b.time, b.name));
+
+                    tdActions.appendChild(waBtn);
                     tdActions.appendChild(cancelBtn);
                 }
 
@@ -460,10 +476,23 @@
                     body: JSON.stringify({ password, date, time })
                 });
 
+                const data = await res.json();
+
                 if (res.ok) {
                     loadDashboard(password, true);
+
+                    if (data.booking) {
+                        const b = data.booking;
+                        const dateObj = new Date(b.date + 'T12:00:00');
+                        const dateFormatted = dateObj.toLocaleDateString('pt-BR', {
+                            weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+                        });
+                        const msg = `Olá, ${b.name}! Seu agendamento na Edigar Barbearia foi confirmado!\n\nServiço: ${b.service}\nData: ${dateFormatted}\nHorário: ${b.time}\n\nAguardamos você!`;
+                        const phone = (b.phone || '').replace(/\D/g, '');
+                        const waUrl = `https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`;
+                        window.open(waUrl, '_blank');
+                    }
                 } else {
-                    const data = await res.json();
                     alert(data.error || 'Erro ao confirmar.');
                 }
             } catch {

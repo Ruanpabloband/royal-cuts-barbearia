@@ -61,7 +61,11 @@ export default async function handler(req, res) {
         const ttl = await redis.ttl(slotKey);
         await redis.set(slotKey, { ...slot, status: 'confirmed' }, { ex: ttl > 0 ? ttl : 172800 });
 
-        return res.status(200).json({ success: true, message: 'Agendamento confirmado.' });
+        return res.status(200).json({
+            success: true,
+            message: 'Agendamento confirmado.',
+            booking: { name: slot.name, phone: slot.phone, service: slot.service, date, time }
+        });
     } catch (error) {
         console.error('Erro ao confirmar agendamento:', error.message);
         return res.status(500).json({ error: 'Erro ao confirmar. Tente novamente.' });
