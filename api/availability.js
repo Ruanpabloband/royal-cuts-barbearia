@@ -29,13 +29,9 @@ export default async function handler(req, res) {
     }
 
     try {
-        const bookedSlots = [];
         const prefix = `slot:${date}:`;
-
-        for await (const key of redis.scanIterator({ match: `${prefix}*`, count: 100 })) {
-            const time = key.replace(prefix, '');
-            bookedSlots.push(time);
-        }
+        const keys = await redis.keys(`${prefix}*`);
+        const bookedSlots = keys.map(k => k.replace(prefix, ''));
 
         return res.status(200).json({ booked: bookedSlots });
     } catch (error) {
