@@ -418,10 +418,18 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    sessionStorage.removeItem('admin_password');
-                    loginScreen.classList.remove('hidden');
-                    dashboard.classList.add('hidden');
-                    stopAutoRefresh();
+                    if (res.status === 401) {
+                        sessionStorage.removeItem('admin_password');
+                        loginScreen.classList.remove('hidden');
+                        dashboard.classList.add('hidden');
+                        stopAutoRefresh();
+                    } else if (res.status === 429) {
+                        dataError.textContent = 'Muitas requisições. Aguarde 60 segundos.';
+                        dataError.classList.remove('hidden');
+                    } else {
+                        dataError.textContent = data.error || 'Erro ao carregar dados.';
+                        dataError.classList.remove('hidden');
+                    }
                     return;
                 }
 

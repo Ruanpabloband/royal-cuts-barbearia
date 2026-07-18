@@ -26,7 +26,7 @@ async function checkRateLimit(ip) {
     if (count === 1) {
         await redis.expire(key, 60).catch(() => {});
     }
-    return count <= 5;
+    return count <= 30;
 }
 
 export default async function handler(req, res) {
