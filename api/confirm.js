@@ -7,10 +7,8 @@ if not data then return redis.error('NOT_FOUND') end
 local slot = cjson.decode(data)
 if slot.status == 'confirmed' then return redis.error('ALREADY_CONFIRMED') end
 if slot.status == 'cancelled' then return redis.error('CANCELLED') end
-local ttl = redis.call('TTL', key)
-local newTtl = ttl > 0 and ttl or 2592000
 slot.status = 'confirmed'
-redis.call('SET', key, cjson.encode(slot), 'EX', newTtl)
+redis.call('SET', key, cjson.encode(slot), 'EX', 2592000)
 return 'OK'
 `;
 
