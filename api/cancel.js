@@ -1,4 +1,4 @@
-import { redis, getCorsHeaders, handleOptions, rejectMethod, checkRateLimit, verifyAdminSession, safeCompare, validateDate, validateTime } from '../_lib/shared.js';
+import { redis, getCorsHeaders, handleOptions, rejectMethod, checkRateLimit, verifyAdminSession, safeCompare, validateDate, validateTime } from './_lib/shared.js';
 
 const LUA_CANCEL = `
 local key = KEYS[1]

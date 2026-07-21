@@ -1,4 +1,4 @@
-import { redis, getCorsHeaders, handleOptions, rejectMethod, validateDate } from '../_lib/shared.js';
+import { redis, getCorsHeaders, handleOptions, rejectMethod, validateDate } from './_lib/shared.js';
 
 export default async function handler(req, res) {
     const origin = req.headers.origin || '';
